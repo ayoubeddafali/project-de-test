@@ -2,21 +2,36 @@ pipeline {
     agent {
       label 'master'
     }
+    tools {
+        maven 'maven-3.6.1'
+    }
     stages {
         stage('Build') { 
             steps {
-                echo "Étape de build"
+                sh "mvn clean compile"
             }
         }
         stage('Test') { 
             steps {
-                echo  "Étape de Test"
+                sh "mvn clean test"
             }
         }
-        stage('Deploiement') { 
+        stage('Sonar') { 
             steps {
-                echo "Étape de Déploiement"
+                echo "Sonar"
+                // sh  "mvn clean compile sonar:sonar -Dsonar.host.url=http://<URL_DE_SONAR> -Dsonar.login=<LOGIN> -Dsonar.password=<PASSWORD>"
             }
         }
+        stage('Package') { 
+            steps {
+                sh  "mvn install"
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: "target/*.jar", fingerprint: true
+                }
+            }
+        }
+
     }
 }
